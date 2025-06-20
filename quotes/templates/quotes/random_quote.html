@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Quote Generator</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #232946 0%, #393e46 100%);
+            color: #eebbc3;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .quote-box {
+            background: rgba(44, 51, 72, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 6px 32px rgba(30, 30, 60, 0.25);
+            padding: 2.8rem 3.2rem;
+            max-width: 540px;
+            text-align: center;
+            transition: box-shadow 0.2s;
+            border: 1.5px solid #393e46;
+        }
+        .quote-text {
+            font-size: 1.7rem;
+            margin-bottom: 1.7rem;
+            color: #eebbc3;
+            font-style: italic;
+            letter-spacing: 0.01em;
+        }
+        .quote-author {
+            font-size: 1.15rem;
+            color: #b8c1ec;
+            margin-bottom: 2.2rem;
+        }
+        .new-quote-btn {
+            background: linear-gradient(90deg, #6a7ba2 0%, #9a8c98 100%);
+            color: #232946;
+            border: none;
+            border-radius: 8px;
+            padding: 0.9rem 2.4rem;
+            font-size: 1.15rem;
+            cursor: pointer;
+            font-weight: 600;
+            box-shadow: 0 2px 12px rgba(154, 140, 152, 0.10);
+            transition: background 0.2s, box-shadow 0.2s, color 0.2s;
+            position: relative;
+            outline: none;
+        }
+        .new-quote-btn:active {
+            background: linear-gradient(90deg, #393e46 0%, #6a7ba2 100%);
+            color: #eebbc3;
+        }
+        .new-quote-btn:hover {
+            background: linear-gradient(90deg, #393e46 0%, #6a7ba2 100%);
+            color: #eebbc3;
+        }
+        .spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #eebbc3;
+            border-top: 3px solid #6a7ba2;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        .new-quote-btn.loading .spinner {
+            display: inline-block;
+        }
+        @keyframes spin {
+            0% { transform: translateY(-50%) rotate(0deg); }
+            100% { transform: translateY(-50%) rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="quote-box">
+        <div id="quote-content">
+            {% if quote %}
+                <div class="quote-text">"{{ quote.text }}"</div>
+                <div class="quote-author">- {{ quote.author }}</div>
+            {% else %}
+                <div class="quote-text">No quotes available.</div>
+            {% endif %}
+        </div>
+        <button class="new-quote-btn" id="new-quote-btn">
+            <span class="spinner"></span>
+            New Quote
+        </button>
+    </div>
+    <script>
+        const apiUrl = "{% url 'api_random_quote' %}";
+        const btn = document.getElementById('new-quote-btn');
+        const quoteContent = document.getElementById('quote-content');
+        btn.addEventListener('click', function() {
+            btn.classList.add('loading');
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    quoteContent.innerHTML = `<div class='quote-text'>"${data.text}"</div><div class='quote-author'>- ${data.author}</div>`;
+                })
+                .catch(() => {
+                    quoteContent.innerHTML = `<div class='quote-text'>Could not fetch quote.</div>`;
+                })
+                .finally(() => {
+                    btn.classList.remove('loading');
+                });
+        });
+    </script>
+</body>
+</html> 
